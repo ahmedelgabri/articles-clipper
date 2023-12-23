@@ -72,9 +72,12 @@ Save the article directly to your obsidian vault
 > - folder: `saved-articles`
 > - tag: `saved-articles`
 
+## Credits
+
+- @kepano for [the idea](https://stephango.com/obsidian-web-clipper)
+
 ## TODO
 
-- [ ] Add source code for the bookmarklet
 - [ ] Better logging
 - [ ] Better error handling
 
