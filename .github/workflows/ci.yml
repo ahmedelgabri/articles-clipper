@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Build
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - run: pnpm install
+      - run: pnpm run test
+
+      - uses: cloudflare/wrangler-action@v3
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          quiet: true
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
