@@ -167,7 +167,17 @@ export function buildObsidianURL({
 // ROUTES
 /////////////////////////////////////////////////////////////////////////////////
 
-router.all('/', () => new Response('Some info here'))
+router.all('/', (req) => {
+	// remove the / from the end of the URL
+	const serviceUrl = req.url.slice(0, -1)
+	const html = `Save the "clip article" bookmarklet to your browser <a href="javascript:(function()%7Bdocument.location.href%3D%60https%3A%2F%2F${serviceUrl}%2Fsave%3Fu%3D%24%7BencodeURIComponent(document.location)%7D%60%3B%7D)()">clip article</a>`
+
+	return new Response(html, {
+		headers: {
+			'content-type': 'text/html',
+		},
+	})
+})
 
 router.get('/save', async (req) => {
 	console.log(req.query)

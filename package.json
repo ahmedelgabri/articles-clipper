@@ -6,7 +6,6 @@
 		"test": "vitest",
 		"test:cov": "vitest run --coverage",
 		"deploy": "wrangler deploy",
-		"build:bookmarklet": "bookmarklet ./bookmarklet/save.js ./bookmarklet/save.dist.js",
 		"dev": "wrangler dev",
 		"start": "wrangler dev"
 	},
@@ -14,7 +13,6 @@
 		"@ahmedelgabri/prettier-config": "^7.0.0",
 		"@cloudflare/workers-types": "^4.20231121.0",
 		"@vitest/coverage-v8": "^1.1.0",
-		"bookmarklet": "^3.0.0",
 		"itty-router": "^3.0.12",
 		"msw": "^2.0.11",
 		"prettier": "^3.1.1",

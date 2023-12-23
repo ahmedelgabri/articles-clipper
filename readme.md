@@ -51,7 +51,11 @@ pnpm deploy
 
 ## How it works?
 
-Currently it has only one route and this where all the magic happens
+### `/`
+
+When you land on the root route you will see a bookmarklet that you can save in
+your browser to be able to quickly save an article. The bookmarklet should work
+also in mobile browsers.
 
 ### `/save`
 
