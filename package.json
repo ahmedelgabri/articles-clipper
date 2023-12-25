@@ -5,7 +5,7 @@
 	"scripts": {
 		"test": "vitest",
 		"test:cov": "vitest run --coverage",
-		"deploy": "wrangler deploy",
+		"deploy": "wrangler deploy --minify",
 		"dev": "wrangler dev",
 		"start": "wrangler dev"
 	},
