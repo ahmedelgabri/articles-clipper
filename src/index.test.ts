@@ -152,7 +152,7 @@ describe('tests', () => {
 author: "John Doe"
 category: "[[saved-articles]]"
 date: 2023-12-23
-published: ????
+published:
 tags: [saved-articles a b]
 source: "https://example.com"`,
 						},
@@ -365,7 +365,7 @@ title: "My Post"
 author: "Hamada Batekha"
 category: "[[saved-articles]]"
 date: 2023-12-23
-published: ????
+published:
 tags: [saved-articles]
 source: "https://example.com/post"
 ---

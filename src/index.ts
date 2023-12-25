@@ -61,7 +61,7 @@ export function addFrontmatter(options: FrontmatterData) {
 author: "${byline}"
 category: "[[saved-articles]]"
 date: ${convertDate(new Date())}
-published: ????
+published:
 tags: [${[...defaultTags, ...tags].join(' ')}]
 source: "${url}"`,
 			},
