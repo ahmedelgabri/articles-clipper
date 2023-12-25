@@ -151,16 +151,15 @@ export function buildObsidianURL({
 	fileName: string
 	fileContent: string
 }) {
-	const url = new URL('obsidian://new')
-
-	url.searchParams.set('name', encodeURIComponent(`${folder}${fileName}`))
-	url.searchParams.set('content', encodeURIComponent(fileContent))
+	let url = `obsidian://new?file=${encodeURIComponent(
+		`${folder}${fileName}`,
+	)}&content=${encodeURIComponent(fileContent)}`
 
 	if (vault) {
-		url.searchParams.set('vault', vault)
+		url += `&vault=${vault}`
 	}
 
-	return url.toString()
+	return url
 }
 
 /////////////////////////////////////////////////////////////////////////////////
