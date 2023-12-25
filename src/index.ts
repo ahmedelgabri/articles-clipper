@@ -29,6 +29,7 @@ export function convertDate(date: Date | ReturnType<typeof Date.now>) {
 			.formatToParts(date)
 			.filter((obj) => obj.type !== 'literal')
 
+		console.log(`Converting date from parts: ${parts}`)
 		return `${parts[2].value}-${parts[1].value}-${parts[0].value}`
 	}
 }
@@ -41,9 +42,11 @@ type FrontmatterData = {
 }
 
 export async function getHtml(url: string) {
+	console.log(`fetching HTML from ${url}`)
 	const response = await fetch(url, {
 		headers: {'content-type': 'text/html;charset=UTF-8'},
 	})
+	console.log(`returning HTML from ${url}`)
 	return response.text()
 }
 
@@ -102,6 +105,13 @@ export async function convertToMarkdown(
 	content: string,
 	fmData: FrontmatterData,
 ) {
+	console.log(
+		`Processing HTML to markdown with frontmatter ${JSON.stringify(
+			fmData,
+			null,
+			2,
+		)}`,
+	)
 	// @TODO: handle media??
 	const md = await processor()
 		.use(rehypeSanitize)
@@ -113,6 +123,7 @@ export async function convertToMarkdown(
 		.use(remarkStringify)
 		.process(content)
 
+	console.log(`Returning Markdown`)
 	return `${md}`
 }
 
@@ -121,12 +132,17 @@ export async function convertToMarkdown(
 // author: OG author?
 // excerpt: <meta description>?
 export async function parseHtml(html: string) {
+	console.log(`parsing HTML`)
 	const {document} = parseHTML(html)
 	const reader = new Readability(document, {
 		keepClasses: true,
 	})
 
 	const result = reader.parse()
+
+	console.log(
+		`Returning data from Readability ${JSON.stringify(result, null, 2)}`,
+	)
 
 	const content =
 		result?.content || result?.excerpt || 'Cannot parse content...'
@@ -137,6 +153,7 @@ export async function parseHtml(html: string) {
 }
 
 export function getFileName(fileName: string) {
+	console.log(`Slugify file name: ${fileName}`)
 	return `${slugify(fileName, {remove: /[*+~.,()'"!:@\/\\]/g})}.md`
 }
 
@@ -159,6 +176,8 @@ export function buildObsidianURL({
 		url += `&vault=${vault}`
 	}
 
+	console.log(`Obsidian URL ${url}`)
+
 	return url
 }
 
@@ -170,6 +189,7 @@ router.all('/', (req) => {
 	// remove the / from the end of the URL
 	const serviceUrl = req.url.slice(0, -1)
 	const html = `Save the "clip article" bookmarklet to your browser <a href="javascript:(function()%7Bdocument.location.href%3D%60https%3A%2F%2F${serviceUrl}%2Fsave%3Fu%3D%24%7BencodeURIComponent(document.location)%7D%60%3B%7D)()">clip article</a>`
+	console.log(`Generating index HTML`)
 
 	return new Response(html, {
 		headers: {
@@ -198,6 +218,7 @@ router.get('/save', async (req) => {
 		return new Response(`Failed to get HTML for ${u}`, {status: 500})
 	}
 
+	console.log(`Handling HTML for ${u}`)
 	const {title, content, byline} = await parseHtml(html)
 	const fileContent = await convertToMarkdown(content, {
 		tags: t,
@@ -210,9 +231,11 @@ router.get('/save', async (req) => {
 	const redirectUrl = buildObsidianURL({fileName, fileContent})
 
 	if (raw) {
+		console.log(`Retrun raw Markdown for ${u}`)
 		return new Response(fileContent)
 	}
 
+	console.log(`Redirect for Obsidian for ${u}`)
 	return Response.redirect(redirectUrl, 301)
 })
 
