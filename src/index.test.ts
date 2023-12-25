@@ -125,6 +125,7 @@ describe('tests', () => {
 							{
 								type: 'linkReference',
 								url: '#some-href',
+								children: [],
 							},
 						],
 					},

@@ -89,7 +89,13 @@ export function resolveRelativeURls(options: {base: string}) {
 		if (node.url.startsWith('#')) {
 			// Remove internal headings links
 			if (parent.type === 'heading' && index != undefined) {
-				parent.children.splice(index, 1)
+				if (Array.isArray(node.children)) {
+					parent.children = [
+						...parent.children.slice(0, index),
+						...node.children,
+						...parent.children.slice(index + 1),
+					]
+				}
 			}
 		}
 	}
