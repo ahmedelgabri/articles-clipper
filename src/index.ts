@@ -58,7 +58,7 @@ export function addFrontmatter(options: FrontmatterData) {
 			{
 				type: 'yaml',
 				value: `title: "${title}"
-author: "${byline}"
+author: [${byline}]
 category: "[[saved-articles]]"
 date: ${convertDate(new Date())}
 published:

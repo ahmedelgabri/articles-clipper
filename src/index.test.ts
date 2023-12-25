@@ -149,7 +149,7 @@ describe('tests', () => {
 						{
 							type: 'yaml',
 							value: `title: "My title"
-author: "John Doe"
+author: [John Doe]
 category: "[[saved-articles]]"
 date: 2023-12-23
 published:
@@ -362,7 +362,7 @@ source: "https://example.com"`,
 				}),
 			).resolves.toBe(`---
 title: "My Post"
-author: "Hamada Batekha"
+author: [Hamada Batekha]
 category: "[[saved-articles]]"
 date: 2023-12-23
 published:
