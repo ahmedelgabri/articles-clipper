@@ -201,7 +201,7 @@ router.all('/', async (req) => {
 
 router.get('/save', async (req) => {
 	console.log(req.query)
-	const {u, t = [], raw} = req.query
+	const {u, s, t = [], raw} = req.query
 
 	if (typeof u !== 'string' || !u) {
 		return new Response('No URL passed', {status: 500})
@@ -216,17 +216,21 @@ router.get('/save', async (req) => {
 	try {
 		html = await getHtml(u)
 	} catch (error) {
+		console.error(error)
 		return new Response(`Failed to get HTML for ${u}`, {status: 500})
 	}
 
 	console.log(`Handling HTML for ${u}`)
 	const {title, content, byline} = await parseHtml(html)
-	const fileContent = await convertToMarkdown(content, {
-		tags: t,
-		url: u,
-		byline,
-		title,
-	})
+	const fileContent = await convertToMarkdown(
+		typeof s === 'string' ? s : content,
+		{
+			tags: t,
+			url: u,
+			byline,
+			title,
+		},
+	)
 	const fileName = getFileName(title)
 
 	const redirectUrl = buildObsidianURL({fileName, fileContent})
