@@ -148,13 +148,13 @@ describe('tests', () => {
 					children: [
 						{
 							type: 'yaml',
-							value: `title: My title
-author: John Doe
+							value: `title: "My title"
+author: "John Doe"
 category: "[[saved-articles]]"
 date: 2023-12-23
 published: ????
 tags: [saved-articles a b]
-source: https://example.com`,
+source: "https://example.com"`,
 						},
 						{type: 'text', value: 'Some text'},
 						{
@@ -361,13 +361,13 @@ source: https://example.com`,
 					byline: 'Hamada Batekha',
 				}),
 			).resolves.toBe(`---
-title: My Post
-author: Hamada Batekha
+title: "My Post"
+author: "Hamada Batekha"
 category: "[[saved-articles]]"
 date: 2023-12-23
 published: ????
 tags: [saved-articles]
-source: https://example.com/post
+source: "https://example.com/post"
 ---
 
 Ahmed El Gabri | Software Engineer - RTL on the web, web related tools & maybe more...

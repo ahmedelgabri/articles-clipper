@@ -54,13 +54,13 @@ export function addFrontmatter(options: FrontmatterData) {
 		node.children = [
 			{
 				type: 'yaml',
-				value: `title: ${title}
-author: ${byline}
+				value: `title: "${title}"
+author: "${byline}"
 category: "[[saved-articles]]"
 date: ${convertDate(new Date())}
 published: ????
 tags: [${[...defaultTags, ...tags].join(' ')}]
-source: ${url}`,
+source: "${url}"`,
 			},
 			...node.children,
 		]
