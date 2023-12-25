@@ -2,7 +2,7 @@ name = "articles-clipper"
 main = "src/index.ts"
 compatibility_date = "2023-12-06"
 send_metrics = false
-node_compat = true
+node_compat = false
 minify = true
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
