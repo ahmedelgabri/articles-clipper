@@ -97,6 +97,9 @@ Save the article directly to your obsidian vault
 
 ## TODO
 
+- [ ] Handle embeds and media
+      https://help.obsidian.md/Linking+notes+and+files/Embedding+files &
+      https://help.obsidian.md/Editing+and+formatting/Embedding+web+pages
 - [ ] Better logging
 - [ ] Better error handling
 
