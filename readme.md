@@ -69,6 +69,21 @@ Save the article directly to your obsidian vault
 | `t`   | `?t[]=tag&t[]=tag2`           | `false`  | Extra tags to add to markdown frontmatter                        |
 | `raw` | `?raw=1`                      | `false`  | Returns the markdown result instead of saving it inside Obsidian |
 
+> [!IMPORTANT]
+>
+> Some articles can be huge, and these can't be automatically downloaded because
+> the header size will be too large and can cause issues ranging from hanging
+> the request to throwing `500` or `502` errors, depending on the platform you
+> are hosting your application on.
+>
+> So right now there is an arbitrary limit (`20000` bytes) if the content
+> exceeds this it will redirect to an HTML page with an `<a>`, that when clicked
+> will add the note to the vault.
+>
+> I decided this was a good trade-off instead of triggering a download because a
+> download will still require manual work, while the `<a>` tag will add to
+> Obsidian directly.
+
 > [!NOTE]
 >
 > Currently there are some hardcoded defaults, like the folder & a default tag
