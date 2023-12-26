@@ -246,6 +246,23 @@ router.get('/save', async (req) => {
 		return new Response(fileContent)
 	}
 
+	const contentSize = new Blob([fileContent]).size
+	const urlSize = new Blob([redirectUrl]).size
+
+	console.log(`Content size: ${contentSize} bytes`)
+	console.log(`URL size: ${urlSize} bytes`)
+
+	if (urlSize > 20000) {
+		return new Response(
+			`<html><head><meta name="color-scheme" content="dark light"></head><body><p>Article is too big, can't automatically add it to your vault. Click this link instead <a href="${redirectUrl}">Download article</a></p></body>`,
+			{
+				headers: {
+					'content-type': 'text/html',
+				},
+			},
+		)
+	}
+
 	console.log(`Redirect for Obsidian for ${u}`)
 	return Response.redirect(redirectUrl, 301)
 })
