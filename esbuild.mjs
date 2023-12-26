@@ -60,7 +60,8 @@ const ctx = await esbuild.build({
 					const encoder = new TextEncoder()
 					const js = result.outputFiles.find((f) => f.path.match(/\.ts$/))
 					const modified =
-						"export default function getBookmarklet() { return '" +
+						`// DON'T MODIFY THIS FILE BY HAND. THIS IS A GENERATED FILE.
+export default function getBookmarklet() { return '` +
 						encodeURI('javascript:void ' + js.text) +
 						"' }"
 					js.contents = encoder.encode(modified)

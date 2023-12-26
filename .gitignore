@@ -69,3 +69,4 @@ drafts/
 .wrangler
 coverage
 bookmarklet/save.dist.js
+src/bookmarklet.ts

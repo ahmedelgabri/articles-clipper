@@ -7,7 +7,7 @@
 		"test:cov": "vitest run --coverage",
 		"build:bookmarklet": "node ./esbuild.mjs",
 		"deploy": "pnpm run build:bookmarklet && wrangler deploy --minify",
-		"start": "wrangler dev",
+		"start": "pnpm run build:bookmarklet && wrangler dev",
 		"postinstall": "pnpm run build:bookmarklet"
 	},
 	"devDependencies": {
