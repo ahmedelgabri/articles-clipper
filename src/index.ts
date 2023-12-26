@@ -194,7 +194,7 @@ export function buildObsidianURL({
 router.all('/', async (req) => {
 	const b = getBookmarklet().replaceAll('__SERVICE_URL__', req.url)
 
-	const html = `Save the "clip article" bookmarklet to your browser <a href="${b}">clip article</a>`
+	const html = `<html><head><meta name="color-scheme" content="dark light"></head><body><p>Save the "clip article" bookmarklet to your browser <a href="${b}">clip article</a></p></body>`
 
 	console.log(`Generating index HTML`)
 
