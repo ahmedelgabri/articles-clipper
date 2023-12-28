@@ -94,23 +94,32 @@ export function resolveRelativeURls(options: {base: string}) {
 		if (node.url.startsWith('./') || node.url.startsWith('/')) {
 			node.url = new URL(node.url, new URL(options.base).origin).toString()
 		}
-
-		if (node.url.startsWith('#')) {
-			// Remove internal headings links
-			if (parent.type === 'heading' && index != undefined) {
-				if (Array.isArray(node.children)) {
-					parent.children = [
-						...parent.children.slice(0, index),
-						...node.children,
-						...parent.children.slice(index + 1),
-					]
-				}
-			}
-		}
 	}
 
 	function transform(tree: Node) {
 		visit(tree, ['link', 'linkReference', 'image'], visitor)
+	}
+
+	return transform
+}
+
+export function removeInternalLinks() {
+	function visitor(
+		node: Record<string, any>,
+		index: number | undefined,
+		parent: Record<string, any>,
+	) {
+		if (node.url.startsWith('#') && index != undefined) {
+			parent.children = [
+				...(parent.children || []).slice(0, index),
+				...(node.children || []),
+				...(parent.children || []).slice(index + 1),
+			]
+		}
+	}
+
+	function transform(tree: Node) {
+		visit(tree, ['link', 'linkReference'], visitor)
 	}
 
 	return transform
@@ -132,6 +141,7 @@ export async function convertToMarkdown(
 		.use(rehypeSanitize)
 		.use(rehypeRemark)
 		.use(resolveRelativeURls, {base: fmData.url})
+		.use(removeInternalLinks)
 		.use(remarkGfm)
 		.use(addFrontmatter, fmData)
 		.use(frontmatter, ['yaml'])

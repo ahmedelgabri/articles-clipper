@@ -20,6 +20,7 @@ import {
 	parseHtml,
 	convertToMarkdown,
 	resolveRelativeURls,
+	removeInternalLinks,
 	addFrontmatter,
 } from '../shared'
 
@@ -226,7 +227,7 @@ source: "https://example.com"`,
 						},
 						{
 							type: 'heading',
-							children: [],
+							children: [{type: 'linkReference', url: '#some-href'}],
 						},
 						{
 							type: 'linkReference',
@@ -235,6 +236,50 @@ source: "https://example.com"`,
 						{
 							type: 'image',
 							url: 'https://foo.com/foo.svg',
+						},
+						{
+							type: 'image',
+							url: 'https://example.com/foo.svg',
+						},
+					],
+				})
+			})
+		})
+
+		describe('removeInternalLinks', () => {
+			test('Remove internal links', () => {
+				removeInternalLinks()(astTree)
+				expect(astTree).toMatchObject({
+					type: 'root',
+					children: [
+						{type: 'text', value: 'Some text'},
+						{
+							type: 'link',
+							url: '/foo',
+						},
+						{
+							type: 'link',
+							url: 'https://example.com/foo',
+						},
+						{
+							type: 'linkReference',
+							url: './bar/baz',
+						},
+						{
+							type: 'linkReference',
+							url: 'https://example.com/bar/baz',
+						},
+						{
+							type: 'heading',
+							children: [],
+						},
+						{
+							type: 'linkReference',
+							url: 'https://example.com#some-other-href',
+						},
+						{
+							type: 'image',
+							url: '/foo.svg',
 						},
 						{
 							type: 'image',
