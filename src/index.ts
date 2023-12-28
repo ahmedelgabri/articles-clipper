@@ -11,15 +11,27 @@ import frontmatter from 'remark-frontmatter'
 import remarkStringify from 'remark-stringify'
 import rehypeSanitize from 'rehype-sanitize'
 import {visit} from 'unist-util-visit'
+import mustache from 'mustache'
 import getBookmarklet from './bookmarklet'
+// @ts-expect-error lack of types
+import layout from './template.html'
 
 const router = Router()
 const defaultTags = ['saved-articles']
+
 /////////////////////////////////////////////////////////////////////////////////
 // Functions
 /////////////////////////////////////////////////////////////////////////////////
 
 const processor = unified().use(rehypeParse, {fragment: true})
+
+export function sendHTML(data: Record<string, any>) {
+	return new Response(mustache.render(layout, data), {
+		headers: {
+			'content-type': 'text/html',
+		},
+	})
+}
 
 export function convertDate(date: Date | ReturnType<typeof Date.now>) {
 	{
@@ -194,14 +206,10 @@ export function buildObsidianURL({
 router.all('/', async (req) => {
 	const b = getBookmarklet().replaceAll('__SERVICE_URL__', req.url)
 
-	const html = `<html><head><meta name="color-scheme" content="dark light"></head><body><p>Save the "clip article" bookmarklet to your browser <a href="${b}">clip article</a></p></body>`
-
 	console.log(`Generating index HTML`)
 
-	return new Response(html, {
-		headers: {
-			'content-type': 'text/html',
-		},
+	return sendHTML({
+		data: `<p>Drag the "clip article" bookmarklet to your browser bookmark toolbar<br/><a class="bookmarklet" href="${b}">clip article</a></p>`,
 	})
 })
 
@@ -253,14 +261,9 @@ router.get('/save', async (req) => {
 	console.log(`URL size: ${urlSize} bytes`)
 
 	if (urlSize > 20000) {
-		return new Response(
-			`<html><head><meta name="color-scheme" content="dark light"></head><body><p>Article is too big, can't automatically add it to your vault. Click this link instead <a href="${redirectUrl}">Add to vault</a></p></body>`,
-			{
-				headers: {
-					'content-type': 'text/html',
-				},
-			},
-		)
+		return sendHTML({
+			data: `<p>Article is too big, can't automatically add it to your vault. Click this link instead<br /><a href="${redirectUrl}">Add to vault</a></p>`,
+		})
 	}
 
 	console.log(`Redirect for Obsidian for ${u}`)
