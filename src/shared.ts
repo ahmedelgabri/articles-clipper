@@ -11,6 +11,14 @@ import remarkStringify from 'remark-stringify'
 import rehypeSanitize from 'rehype-sanitize'
 import {visit} from 'unist-util-visit'
 import mustache from 'mustache'
+import type {
+	Link,
+	Image,
+	ImageReference,
+	LinkReference,
+	Root,
+	Parent,
+} from 'mdast'
 // @ts-expect-error lack of types
 import layout from './template.html'
 
@@ -60,7 +68,7 @@ export async function getHtml(url: string) {
 }
 
 export function addFrontmatter(options: FrontmatterData) {
-	function visitor(node: Record<string, any>) {
+	function visitor(node: Root) {
 		const {title, tags, url, byline} = options
 
 		node.children = [
@@ -78,7 +86,7 @@ source: "${url}"`,
 		]
 	}
 
-	function transform(tree: Node) {
+	function transform(tree: any) {
 		visit(tree, ['root'], visitor)
 	}
 
@@ -86,13 +94,16 @@ source: "${url}"`,
 }
 
 export function resolveRelativeURls(options: {base: string}) {
-	function visitor(node: Record<string, any>) {
-		if (node.url.startsWith('.') || node.url.startsWith('/')) {
+	function visitor(node: Link | Image | ImageReference | LinkReference) {
+		if (
+			'url' in node &&
+			(node.url.startsWith('.') || node.url.startsWith('/'))
+		) {
 			node.url = new URL(node.url, new URL(options.base).origin).toString()
 		}
 	}
 
-	function transform(tree: Node) {
+	function transform(tree: any) {
 		visit(tree, ['link', 'linkReference', 'image', 'imageReference'], visitor)
 	}
 
@@ -101,11 +112,11 @@ export function resolveRelativeURls(options: {base: string}) {
 
 export function removeInternalLinks() {
 	function visitor(
-		node: Record<string, any>,
+		node: Link | LinkReference,
 		index: number | undefined,
-		parent: Record<string, any>,
+		parent: Parent,
 	) {
-		if (node.url.startsWith('#') && index != undefined) {
+		if ('url' in node && node.url.startsWith('#') && index != undefined) {
 			parent.children = [
 				...(parent.children || []).slice(0, index),
 				...(node.children || []),
