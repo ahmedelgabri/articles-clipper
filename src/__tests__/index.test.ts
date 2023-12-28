@@ -21,7 +21,7 @@ import {
 	convertToMarkdown,
 	resolveRelativeURls,
 	addFrontmatter,
-} from '.'
+} from '../index'
 
 const html = fs.readFileSync(path.resolve(__dirname, './test.html'), 'utf8')
 
