@@ -93,7 +93,7 @@ export function resolveRelativeURls(options: {base: string}) {
 	}
 
 	function transform(tree: Node) {
-		visit(tree, ['link', 'linkReference', 'image'], visitor)
+		visit(tree, ['link', 'linkReference', 'image', 'imageReference'], visitor)
 	}
 
 	return transform

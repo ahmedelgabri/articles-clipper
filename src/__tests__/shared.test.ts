@@ -134,6 +134,7 @@ describe('tests', () => {
 					{type: 'linkReference', url: 'https://example.com#some-other-href'},
 					{type: 'image', url: '/foo.svg'},
 					{type: 'image', url: 'https://example.com/foo.svg'},
+					{type: 'imageReference', url: '/foo.svg'},
 				],
 			}
 		})
@@ -201,6 +202,10 @@ source: "https://example.com"`,
 							type: 'image',
 							url: 'https://example.com/foo.svg',
 						},
+						{
+							type: 'imageReference',
+							url: '/foo.svg',
+						},
 					],
 				})
 			})
@@ -250,6 +255,10 @@ source: "https://example.com"`,
 							type: 'image',
 							url: 'https://example.com/foo.svg',
 						},
+						{
+							type: 'imageReference',
+							url: 'https://foo.com/foo.svg',
+						},
 					],
 				})
 			})
@@ -297,6 +306,10 @@ source: "https://example.com"`,
 						{
 							type: 'image',
 							url: 'https://example.com/foo.svg',
+						},
+						{
+							type: 'imageReference',
+							url: '/foo.svg',
 						},
 					],
 				})
