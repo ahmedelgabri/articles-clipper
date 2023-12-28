@@ -26,11 +26,11 @@ router.get('/save', async (req) => {
 	const {u, s, t = [], raw} = req.query
 
 	if (typeof u !== 'string' || !u) {
-		return new Response('No URL passed', {status: 500})
+		return new Response('No URL passed', {status: 400})
 	}
 
 	if (!Array.isArray(t)) {
-		return new Response(`Tags must be an Array`, {status: 500})
+		return new Response(`Tags must be an Array`, {status: 400})
 	}
 
 	let html = ''
