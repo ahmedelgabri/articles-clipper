@@ -118,6 +118,7 @@ describe('tests', () => {
 					{type: 'text', value: 'Some text'},
 					{type: 'link', url: '/foo'},
 					{type: 'link', url: 'https://example.com/foo'},
+					{type: 'link', url: '../../path/foo'},
 					{type: 'linkReference', url: './bar/baz'},
 					{type: 'linkReference', url: 'https://example.com/bar/baz'},
 					{
@@ -166,6 +167,10 @@ source: "https://example.com"`,
 						{
 							type: 'link',
 							url: 'https://example.com/foo',
+						},
+						{
+							type: 'link',
+							url: '../../path/foo',
 						},
 						{
 							type: 'linkReference',
@@ -218,6 +223,10 @@ source: "https://example.com"`,
 							url: 'https://example.com/foo',
 						},
 						{
+							type: 'link',
+							url: 'https://foo.com/path/foo',
+						},
+						{
 							type: 'linkReference',
 							url: 'https://foo.com/bar/baz',
 						},
@@ -260,6 +269,10 @@ source: "https://example.com"`,
 						{
 							type: 'link',
 							url: 'https://example.com/foo',
+						},
+						{
+							type: 'link',
+							url: '../../path/foo',
 						},
 						{
 							type: 'linkReference',

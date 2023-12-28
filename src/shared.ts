@@ -86,12 +86,8 @@ source: "${url}"`,
 }
 
 export function resolveRelativeURls(options: {base: string}) {
-	function visitor(
-		node: Record<string, any>,
-		index: number | undefined,
-		parent: Record<string, any>,
-	) {
-		if (node.url.startsWith('./') || node.url.startsWith('/')) {
+	function visitor(node: Record<string, any>) {
+		if (node.url.startsWith('.') || node.url.startsWith('/')) {
 			node.url = new URL(node.url, new URL(options.base).origin).toString()
 		}
 	}
