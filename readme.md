@@ -100,6 +100,10 @@ Save the article directly to your obsidian vault
 - [ ] Handle embeds and media
       https://help.obsidian.md/Linking+notes+and+files/Embedding+files &
       https://help.obsidian.md/Editing+and+formatting/Embedding+web+pages
+- [ ] Handle `<mark>` tags -> `==highlight==`
+- [ ] Handle `<s>` tags -> `~~strikethrough~~ `
+- [ ] prepend `[!quote]` to blockquotes https://help.obsidian.md/Editing+and+formatting/Callouts#Supported+types
+- [ ] Handle `<kbd>` tags?
 - [ ] Better logging
 - [ ] Better error handling
 
