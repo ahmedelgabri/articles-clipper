@@ -2,7 +2,6 @@ import {parseHTML} from 'linkedom/worker'
 import {Readability} from '@mozilla/readability'
 import slugify from 'slugify'
 import {unified} from 'unified'
-import {type Node} from 'unified/lib'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
 import remarkGfm from 'remark-gfm'
@@ -90,39 +89,38 @@ source: "${url}"`,
 }
 
 export function resolveRelativeURls(options: {base: string}) {
-	function visitor(node: Link | Image | ImageReference | LinkReference) {
-		if (
-			'url' in node &&
-			(node.url.startsWith('.') || node.url.startsWith('/'))
-		) {
-			node.url = new URL(node.url, new URL(options.base).origin).toString()
+	function visitor(
+		node: Link | Image,
+		index: number | undefined,
+		parent: Parent,
+	) {
+		if (!('url' in node)) return
+
+		const parsedBaseUrl = new URL(options.base)
+		const parsedUrl = new URL(node.url, options.base)
+
+		// Is relative link?
+		if (parsedBaseUrl.origin === parsedUrl.origin) {
+			// We remove internal links #foo or http://base/#foo
+			if (
+				node.type === 'link' &&
+				parsedUrl.hash &&
+				parsedBaseUrl.pathname === parsedUrl.pathname &&
+				index != undefined
+			) {
+				parent.children = [
+					...(parent.children || []).slice(0, index),
+					...(node.children || []),
+					...(parent.children || []).slice(index + 1),
+				]
+			} else {
+				node.url = new URL(node.url, parsedBaseUrl.origin).toString()
+			}
 		}
 	}
 
 	function transform(tree: any) {
-		visit(tree, ['link', 'linkReference', 'image', 'imageReference'], visitor)
-	}
-
-	return transform
-}
-
-export function removeInternalLinks() {
-	function visitor(
-		node: Link | LinkReference,
-		index: number | undefined,
-		parent: Parent,
-	) {
-		if ('url' in node && node.url.startsWith('#') && index != undefined) {
-			parent.children = [
-				...(parent.children || []).slice(0, index),
-				...(node.children || []),
-				...(parent.children || []).slice(index + 1),
-			]
-		}
-	}
-
-	function transform(tree: Node) {
-		visit(tree, ['link', 'linkReference'], visitor)
+		visit(tree, ['link', 'image'], visitor)
 	}
 
 	return transform
@@ -144,7 +142,6 @@ export async function convertToMarkdown(
 		.use(rehypeSanitize)
 		.use(rehypeRemark)
 		.use(resolveRelativeURls, {base: fmData.url})
-		.use(removeInternalLinks)
 		.use(remarkGfm)
 		.use(addFrontmatter, fmData)
 		.use(frontmatter, ['yaml'])
