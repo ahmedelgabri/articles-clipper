@@ -5,6 +5,9 @@ send_metrics = false
 node_compat = false
 minify = true
 
+[placement]
+mode = "smart"
+
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
 # Docs: https://developers.cloudflare.com/workers/platform/environment-variables
