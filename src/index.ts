@@ -1,4 +1,5 @@
 import {Router} from 'itty-router'
+import * as diff from 'diff'
 import {
 	buildObsidianURL,
 	convertToMarkdown,
@@ -23,7 +24,7 @@ router.all('/', async (req) => {
 
 router.get('/save', async (req) => {
 	console.log(req.query)
-	const {u, s, t = [], raw} = req.query
+	const {u, s, t = [], raw, d} = req.query
 
 	if (typeof u !== 'string' || !u) {
 		return new Response('No URL passed', {status: 400})
@@ -44,15 +45,33 @@ router.get('/save', async (req) => {
 
 	console.log(`Handling HTML for ${u}`)
 	const {title, content, byline} = await parseHtml(html)
+	const opts = {
+		tags: t,
+		url: u,
+		byline,
+		title,
+	}
 	const fileContent = await convertToMarkdown(
-		typeof s === 'string' ? s : content,
-		{
-			tags: t,
-			url: u,
-			byline,
-			title,
-		},
+		typeof s === 'string' ? s : html,
+		opts,
 	)
+
+	if (d) {
+		const readabilityFileContent = await convertToMarkdown(
+			typeof s === 'string' ? s : content,
+			opts,
+		)
+
+		const patch = diff.createTwoFilesPatch(
+			'Readability',
+			'Unified',
+			readabilityFileContent,
+			fileContent,
+		)
+		console.log(`Retrun diff for ${u}`)
+		return new Response(patch)
+	}
+
 	const fileName = getFileName(title)
 
 	const redirectUrl = buildObsidianURL({fileName, fileContent})
