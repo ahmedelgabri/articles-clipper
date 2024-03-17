@@ -119,22 +119,18 @@ describe('tests', () => {
 					{type: 'link', url: '/foo'},
 					{type: 'link', url: 'https://example.com/foo'},
 					{type: 'link', url: '../../path/foo'},
-					{type: 'linkReference', url: './bar/baz'},
-					{type: 'linkReference', url: 'https://example.com/bar/baz'},
 					{
 						type: 'heading',
 						children: [
 							{
-								type: 'linkReference',
+								type: 'link',
 								url: '#some-href',
 								children: [],
 							},
 						],
 					},
-					{type: 'linkReference', url: 'https://example.com#some-other-href'},
 					{type: 'image', url: '/foo.svg'},
 					{type: 'image', url: 'https://example.com/foo.svg'},
-					{type: 'imageReference', url: '/foo.svg'},
 				],
 			}
 		})
@@ -174,25 +170,13 @@ source: "https://example.com"`,
 							url: '../../path/foo',
 						},
 						{
-							type: 'linkReference',
-							url: './bar/baz',
-						},
-						{
-							type: 'linkReference',
-							url: 'https://example.com/bar/baz',
-						},
-						{
 							type: 'heading',
 							children: [
 								{
-									type: 'linkReference',
+									type: 'link',
 									url: '#some-href',
 								},
 							],
-						},
-						{
-							type: 'linkReference',
-							url: 'https://example.com#some-other-href',
 						},
 						{
 							type: 'image',
@@ -202,16 +186,12 @@ source: "https://example.com"`,
 							type: 'image',
 							url: 'https://example.com/foo.svg',
 						},
-						{
-							type: 'imageReference',
-							url: '/foo.svg',
-						},
 					],
 				})
 			})
 		})
 
-		describe('resolveRelativeURls', () => {
+		describe('resolveRelativeURls & remove internal links', () => {
 			test('Resolve relative URLs', () => {
 				const options = {base: 'https://foo.com'}
 				resolveRelativeURls(options)(astTree)
@@ -232,84 +212,16 @@ source: "https://example.com"`,
 							url: 'https://foo.com/path/foo',
 						},
 						{
-							type: 'linkReference',
-							url: 'https://foo.com/bar/baz',
-						},
-						{
-							type: 'linkReference',
-							url: 'https://example.com/bar/baz',
-						},
-						{
-							type: 'heading',
-							children: [{type: 'linkReference', url: '#some-href'}],
-						},
-						{
-							type: 'linkReference',
-							url: 'https://example.com#some-other-href',
-						},
-						{
-							type: 'image',
-							url: 'https://foo.com/foo.svg',
-						},
-						{
-							type: 'image',
-							url: 'https://example.com/foo.svg',
-						},
-						{
-							type: 'imageReference',
-							url: 'https://foo.com/foo.svg',
-						},
-					],
-				})
-			})
-		})
-
-		describe('removeInternalLinks', () => {
-			test('Remove internal links', () => {
-				removeInternalLinks()(astTree)
-				expect(astTree).toMatchObject({
-					type: 'root',
-					children: [
-						{type: 'text', value: 'Some text'},
-						{
-							type: 'link',
-							url: '/foo',
-						},
-						{
-							type: 'link',
-							url: 'https://example.com/foo',
-						},
-						{
-							type: 'link',
-							url: '../../path/foo',
-						},
-						{
-							type: 'linkReference',
-							url: './bar/baz',
-						},
-						{
-							type: 'linkReference',
-							url: 'https://example.com/bar/baz',
-						},
-						{
 							type: 'heading',
 							children: [],
 						},
 						{
-							type: 'linkReference',
-							url: 'https://example.com#some-other-href',
-						},
-						{
 							type: 'image',
-							url: '/foo.svg',
+							url: 'https://foo.com/foo.svg',
 						},
 						{
 							type: 'image',
 							url: 'https://example.com/foo.svg',
-						},
-						{
-							type: 'imageReference',
-							url: '/foo.svg',
 						},
 					],
 				})
