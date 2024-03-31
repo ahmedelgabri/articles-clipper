@@ -52,21 +52,21 @@ router.get('/save', async (req) => {
 		title,
 	}
 	const fileContent = await convertToMarkdown(
-		typeof s === 'string' ? s : html,
+		typeof s === 'string' ? s : content,
 		opts,
 	)
 
 	if (d) {
-		const readabilityFileContent = await convertToMarkdown(
-			typeof s === 'string' ? s : content,
+		const unifiedFileContent = await convertToMarkdown(
+			typeof s === 'string' ? s : html,
 			opts,
 		)
 
 		const patch = diff.createTwoFilesPatch(
 			'Readability',
 			'Unified',
-			readabilityFileContent,
 			fileContent,
+			unifiedFileContent,
 		)
 		console.log(`Retrun diff for ${u}`)
 		return new Response(patch)
