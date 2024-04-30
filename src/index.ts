@@ -1,4 +1,4 @@
-import {Router} from 'itty-router'
+import {AutoRouter, IRequest} from 'itty-router'
 import * as diff from 'diff'
 import {
 	buildObsidianURL,
@@ -10,7 +10,10 @@ import {
 } from './shared'
 import getBookmarklet from './bookmarklet'
 
-const router = Router()
+type Environment = {AI: any}
+type CFArgs = [Environment, ExecutionContext]
+
+const router = AutoRouter<IRequest, CFArgs>()
 
 router.all('/', async (req) => {
 	const b = getBookmarklet().replaceAll('__SERVICE_URL__', req.url)
@@ -101,5 +104,5 @@ router.get('/save', async (req) => {
 router.all('*', () => new Response('Not Found.', {status: 404}))
 
 export default {
-	fetch: router.handle,
+	...router,
 }

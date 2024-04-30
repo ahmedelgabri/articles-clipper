@@ -63,11 +63,13 @@ Save the article directly to your obsidian vault
 
 #### Query params
 
-| Name  | Example                       | Required | Description                                                      |
-| ----- | ----------------------------- | -------- | ---------------------------------------------------------------- |
-| `u`   | `?u=https://example.com/post` | `true`   | The URL for the article to be saved example                      |
-| `t`   | `?t[]=tag&t[]=tag2`           | `false`  | Extra tags to add to markdown frontmatter                        |
-| `raw` | `?raw=1`                      | `false`  | Returns the markdown result instead of saving it inside Obsidian |
+| Name  | Example                       | Required | Description                                                                 |
+| ----- | ----------------------------- | -------- | --------------------------------------------------------------------------- |
+| `u`   | `?u=https://example.com/post` | `true`   | The URL for the article to be saved example                                 |
+| `s`   | `?s=<h1>test</h1>`            | `false`  | A string to be converted, HTML or just plain string                         |
+| `t`   | `?t[]=tag&t[]=tag2`           | `false`  | Extra tags to add to markdown frontmatter                                   |
+| `raw` | `?raw=1`                      | `false`  | Returns the markdown result instead of saving it inside Obsidian            |
+| `d`   | `?d=1`                        | `false`  | Returns the markdown diff result between readability and unified (unstable) |
 
 > [!IMPORTANT]
 >
@@ -97,12 +99,13 @@ Save the article directly to your obsidian vault
 
 ## TODO
 
-- [ ] Handle embeds and media
+- [x] Handle embeds and media (partially done)
       https://help.obsidian.md/Linking+notes+and+files/Embedding+files &
       https://help.obsidian.md/Editing+and+formatting/Embedding+web+pages
 - [ ] Handle `<mark>` tags -> `==highlight==`
 - [ ] Handle `<s>` tags -> `~~strikethrough~~ `
-- [ ] prepend `[!quote]` to blockquotes https://help.obsidian.md/Editing+and+formatting/Callouts#Supported+types
+- [ ] prepend `[!quote]` to blockquotes
+      https://help.obsidian.md/Editing+and+formatting/Callouts#Supported+types
 - [ ] Handle `<kbd>` tags?
 - [ ] Better logging
 - [ ] Better error handling
