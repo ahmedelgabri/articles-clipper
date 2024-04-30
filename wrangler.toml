@@ -4,6 +4,8 @@ compatibility_date = "2023-12-06"
 send_metrics = false
 node_compat = false
 minify = true
+# https://twitter.com/cloudflaredev/status/1785299316476620872
+upload_source_maps = true
 
 [placement]
 mode = "smart"
