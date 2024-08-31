@@ -19,8 +19,8 @@ const defaultTags = ['saved-articles']
 
 const processor = unified().use(rehypeParse, {fragment: true})
 
-export function sendHTML(data: Record<string, any>) {
-	return new Response(mustache.render(layout, data), {
+export function sendHTML() {
+	return new Response(layout, {
 		headers: {
 			'content-type': 'text/html',
 		},

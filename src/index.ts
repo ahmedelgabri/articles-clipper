@@ -15,13 +15,8 @@ type Environment = { AI: any }
 const app = new Hono<{ Bindings: Environment }>()
 
 app.get('/', async (c) => {
-	const b = getBookmarklet().replaceAll('__SERVICE_URL__', c.req.url)
-
 	console.log(`Generating index HTML`)
-
-	return sendHTML({
-		data: `<p>Drag the "clip article" bookmarklet to your browser bookmark toolbar<br/><a class="bookmarklet" href="${b}">clip article</a></p>`,
-	})
+	return sendHTML()
 })
 
 app.get('/save', async (c) => {
