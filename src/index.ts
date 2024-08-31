@@ -26,6 +26,7 @@ app.get('/save', async (c) => {
 	const t = c.req.query('t')
 	const raw = c.req.query('raw')
 	const d = c.req.query('d')
+	const isUIRequest = c.req.header('X-Requested-From') === 'UI'
 
 	if (typeof u !== 'string' || !u) {
 		return c.text('No URL passed', 400)
@@ -87,13 +88,15 @@ app.get('/save', async (c) => {
 	console.log(`URL size: ${urlSize} bytes`)
 
 	if (urlSize > 20000) {
-		return sendHTML({
-			data: `<p>Article is too big, can't automatically add it to your vault. Click this link instead<br /><a href="${redirectUrl}">Add to vault</a></p>`,
-		})
+		return c.html(`<p>Article is too big, can't automatically add it to your vault. Click this link instead<br /><a href="${redirectUrl}">Add to vault</a></p>`)
 	}
 
-	console.log(`Redirect for Obsidian for ${u}`)
-	return c.redirect(redirectUrl, 301)
+	console.log(`Handling request for ${u}`)
+	if (isUIRequest) {
+		return c.json({ type: 'obsidian_url', url: redirectUrl })
+	} else {
+		return c.redirect(redirectUrl)
+	}
 })
 
 app.notFound((c) => c.text('Not Found.', 404))

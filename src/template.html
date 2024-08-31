@@ -139,18 +139,28 @@
 					const fullUrl = `/save?u=${encodeURIComponent(url.value)}${queryString ? '&' + queryString : ''}`
 
 					try {
-						const response = await fetch(fullUrl)
-						const result = await response.text()
-
-						if (response.redirected) {
-							redirectUrl.value = response.url
-							resultType.value = 'redirect'
-						} else if (result.includes('Article is too big')) {
-							redirectUrl.value = result.match(/href="(.+?)"/)[1]
-							resultType.value = 'large'
-						} else if (selectedParams.raw || selectedParams.d) {
-							output.value = result
-							resultType.value = selectedParams.d ? 'diff' : 'raw'
+						const response = await fetch(fullUrl, {
+							headers: {
+								'X-Requested-From': 'UI'
+							}
+						})
+						const contentType = response.headers.get("content-type")
+						
+						if (contentType && contentType.includes("application/json")) {
+							const result = await response.json()
+							if (result.type === 'obsidian_url') {
+								redirectUrl.value = result.url
+								resultType.value = 'redirect'
+							}
+						} else {
+							const result = await response.text()
+							if (result.includes('Article is too big')) {
+								redirectUrl.value = result.match(/href="(.+?)"/)[1]
+								resultType.value = 'large'
+							} else if (selectedParams.raw || selectedParams.d) {
+								output.value = result
+								resultType.value = selectedParams.d ? 'diff' : 'raw'
+							}
 						}
 					} catch (error) {
 						output.value = `Error: ${error.message}`
