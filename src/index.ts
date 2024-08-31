@@ -1,4 +1,4 @@
-import {AutoRouter, IRequest} from 'itty-router'
+import { Hono } from 'hono'
 import * as diff from 'diff'
 import {
 	buildObsidianURL,
@@ -10,13 +10,12 @@ import {
 } from './shared'
 import getBookmarklet from './bookmarklet'
 
-type Environment = {AI: any}
-type CFArgs = [Environment, ExecutionContext]
+type Environment = { AI: any }
 
-const router = AutoRouter<IRequest, CFArgs>()
+const app = new Hono<{ Bindings: Environment }>()
 
-router.all('/', async (req) => {
-	const b = getBookmarklet().replaceAll('__SERVICE_URL__', req.url)
+app.get('/', async (c) => {
+	const b = getBookmarklet().replaceAll('__SERVICE_URL__', c.req.url)
 
 	console.log(`Generating index HTML`)
 
@@ -25,17 +24,19 @@ router.all('/', async (req) => {
 	})
 })
 
-router.get('/save', async (req) => {
-	console.log(req.query)
-	const {u, s, t = [], raw, d} = req.query
+app.get('/save', async (c) => {
+	console.log(c.req.query())
+	const u = c.req.query('u')
+	const s = c.req.query('s')
+	const t = c.req.query('t')
+	const raw = c.req.query('raw')
+	const d = c.req.query('d')
 
 	if (typeof u !== 'string' || !u) {
-		return new Response('No URL passed', {status: 400})
+		return c.text('No URL passed', 400)
 	}
 
-	if (!Array.isArray(t)) {
-		return new Response(`Tags must be an Array`, {status: 400})
-	}
+	const tags = t ? t.split(',').map(tag => tag.trim()) : []
 
 	let html = ''
 
@@ -43,13 +44,13 @@ router.get('/save', async (req) => {
 		html = await getHtml(u)
 	} catch (error) {
 		console.error(error)
-		return new Response(`Failed to get HTML for ${u}`, {status: 500})
+		return c.text(`Failed to get HTML for ${u}`, 500)
 	}
 
 	console.log(`Handling HTML for ${u}`)
-	const {title, content, byline} = await parseHtml(html)
+	const { title, content, byline } = await parseHtml(html)
 	const opts = {
-		tags: t,
+		tags,
 		url: u,
 		byline,
 		title,
@@ -71,17 +72,17 @@ router.get('/save', async (req) => {
 			fileContent,
 			unifiedFileContent,
 		)
-		console.log(`Retrun diff for ${u}`)
-		return new Response(patch)
+		console.log(`Return diff for ${u}`)
+		return c.text(patch)
 	}
 
 	const fileName = getFileName(title)
 
-	const redirectUrl = buildObsidianURL({fileName, fileContent})
+	const redirectUrl = buildObsidianURL({ fileName, fileContent })
 
 	if (raw) {
-		console.log(`Retrun raw Markdown for ${u}`)
-		return new Response(fileContent)
+		console.log(`Return raw Markdown for ${u}`)
+		return c.text(fileContent)
 	}
 
 	const contentSize = new Blob([fileContent]).size
@@ -97,12 +98,9 @@ router.get('/save', async (req) => {
 	}
 
 	console.log(`Redirect for Obsidian for ${u}`)
-	return Response.redirect(redirectUrl, 301)
+	return c.redirect(redirectUrl, 301)
 })
 
-// 404 for everything else
-router.all('*', () => new Response('Not Found.', {status: 404}))
+app.notFound((c) => c.text('Not Found.', 404))
 
-export default {
-	...router,
-}
+export default app
