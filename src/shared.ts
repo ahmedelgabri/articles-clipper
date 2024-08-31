@@ -1,6 +1,3 @@
-import {parseHTML} from 'linkedom/worker'
-import {Readability} from '@mozilla/readability'
-import slugify from 'slugify'
 import {unified} from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
@@ -10,14 +7,14 @@ import remarkStringify from 'remark-stringify'
 import rehypeSanitize, {defaultSchema} from 'rehype-sanitize'
 import {visit} from 'unist-util-visit'
 import {toHtml} from 'hast-util-to-html'
-import mustache from 'mustache'
+import {toString} from 'hast-util-to-string'
+import {select} from 'hast-util-select'
 import type {Link, Image, Root, Parent} from 'mdast'
+import slugify from 'slugify'
 // @ts-expect-error lack of types
 import layout from './template.html'
 
 const defaultTags = ['saved-articles']
-
-const processor = unified().use(rehypeParse, {fragment: true})
 
 export function sendHTML() {
 	return new Response(layout, {
@@ -28,16 +25,14 @@ export function sendHTML() {
 }
 
 export function convertDate(date: Date | ReturnType<typeof Date.now>) {
-	{
-		const parts = new Intl.DateTimeFormat('en-GB', {
-			timeZone: 'Europe/Amsterdam',
-		})
-			.formatToParts(date)
-			.filter((obj) => obj.type !== 'literal')
+	const parts = new Intl.DateTimeFormat('en-GB', {
+		timeZone: 'Europe/Amsterdam',
+	})
+		.formatToParts(date)
+		.filter((obj) => obj.type !== 'literal')
 
-		console.log(`Converting date from parts: ${parts}`)
-		return `${parts[2].value}-${parts[1].value}-${parts[0].value}`
-	}
+	console.log(`Converting date from parts: ${parts}`)
+	return `${parts[2].value}-${parts[1].value}-${parts[0].value}`
 }
 
 type FrontmatterData = {
@@ -120,102 +115,57 @@ export function resolveRelativeURls(options: {base: string}) {
 	return transform
 }
 
+export async function parseHtml(html: string, url: string) {
+	console.log(`parsing HTML`)
+
+	const processor = unified()
+		.use(rehypeParse)
+		.use(rehypeSanitize, {
+			...defaultSchema,
+			attributes: {
+				...defaultSchema.attributes,
+				'*': ['className'],
+			},
+		})
+
+	const tree = processor.parse(html)
+	const titleNode = select('title', tree)
+	const title = titleNode ? toString(titleNode) : 'No title...'
+
+	const bylineNode = select('meta[name="author"]', tree)
+	const byline = bylineNode?.properties?.content || ''
+
+	const excerptNode = select('meta[name="description"]', tree)
+	const excerpt = excerptNode?.properties?.content || ''
+
+	const contentNode = select('body', tree)
+	const content = contentNode ? toHtml(contentNode) : 'Cannot parse content...'
+
+	console.log(`Parsed HTML for ${url}`)
+
+	return {title, content, byline, excerpt}
+}
+
 export async function convertToMarkdown(
 	content: string,
 	fmData: FrontmatterData,
 ) {
 	console.log(
-		`Processing HTML to markdown with frontmatter ${JSON.stringify(
-			fmData,
-			null,
-			2,
-		)}`,
+		`Processing HTML to markdown with frontmatter ${JSON.stringify(fmData, null, 2)}`,
 	)
-	const md = await processor()
-		.use(rehypeSanitize, {
-			// Allow tags/props we want to keep
-			...defaultSchema,
-			attributes: {
-				...defaultSchema.attributes,
-				video: ['src', 'controls'],
-				audio: ['src', 'controls'],
-				iframe: [
-					'src',
-					'width',
-					'height',
-					'title',
-					'frameborder',
-					'allow',
-					'allowfullscreen',
-				],
-			},
-			tagNames: [...(defaultSchema.tagNames || []), 'video', 'audio', 'iframe'],
-		})
-		.use(rehypeRemark, {
-			// Handle tags we want to keep raw, mostly media
-			handlers: {
-				audio(state, node) {
-					if (!node.properties.controls) {
-						node.properties.controls = true
-					}
-					const result = {type: 'html', value: toHtml(node)} as const
-					state.patch(node, result)
-					return result
-				},
-				video(state, node) {
-					if (!node.properties.controls) {
-						node.properties.controls = true
-					}
-					const result = {type: 'html', value: toHtml(node)} as const
-					state.patch(node, result)
-					return result
-				},
-				iframe(state, node) {
-					const result = {type: 'html', value: toHtml(node)} as const
-					state.patch(node, result)
-					return result
-				},
-			},
-		})
-		.use(resolveRelativeURls, {base: fmData.url})
+
+	const md = await unified()
+		.use(rehypeParse)
+		.use(rehypeRemark)
 		.use(remarkGfm)
+		.use(resolveRelativeURls, {base: fmData.url})
 		.use(addFrontmatter, fmData)
 		.use(frontmatter, ['yaml'])
 		.use(remarkStringify)
 		.process(content)
 
 	console.log(`Returning Markdown`)
-	return `${md}`
-}
-
-// @TODO: replace this with unified, need to figure out how to get
-// title: <title>?
-// author: OG author?
-// excerpt: <meta description>?
-// @FIXME: readability removes `<aside>`, drop it and switch to unified.
-export async function parseHtml(html: string) {
-	console.log(`parsing HTML`)
-	const {document} = parseHTML(html)
-	const reader = new Readability(document, {
-		keepClasses: true,
-	})
-
-	const result = reader.parse()
-
-	console.log(
-		`Returning data from Readability ${JSON.stringify(
-			{...result, content: 'removed because too big'},
-			null,
-			2,
-		)}`,
-	)
-
-	const content =
-		result?.content || result?.excerpt || 'Cannot parse content...'
-	const byline = result?.byline || ''
-	const title = result?.title || 'No title...'
-
-	return {...result, title, content, byline, excerpt: result?.excerpt}
+	return String(md)
 }
 
 export function getFileName(fileName: string) {
@@ -234,16 +184,11 @@ export function buildObsidianURL({
 	fileName: string
 	fileContent: string
 }) {
-	// @NOTE: Encoding the content can lead to issues like this https://stackoverflow.com/questions/25244361/%C3%A2%E2%82%AC-character-showing-instead-of-em-dash
 	let url = `obsidian://new?file=${encodeURIComponent(`${folder}${fileName}`)}`
-
 	url += `&content=${encodeURIComponent(fileContent)}`
-
 	if (vault) {
 		url += `&vault=${vault}`
 	}
-
 	console.log(`Obsidian URL ${url}`)
-
 	return url
 }

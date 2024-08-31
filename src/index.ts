@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import {Hono} from 'hono'
 import * as diff from 'diff'
 import {
 	buildObsidianURL,
@@ -10,9 +10,9 @@ import {
 } from './shared'
 import getBookmarklet from './bookmarklet'
 
-type Environment = { AI: any }
+type Environment = {AI: any}
 
-const app = new Hono<{ Bindings: Environment }>()
+const app = new Hono<{Bindings: Environment}>()
 
 app.get('/', async (c) => {
 	console.log(`Generating index HTML`)
@@ -32,7 +32,7 @@ app.get('/save', async (c) => {
 		return c.text('No URL passed', 400)
 	}
 
-	const tags = t ? t.split(',').map(tag => tag.trim()) : []
+	const tags = t ? t.split(',').map((tag) => tag.trim()) : []
 
 	let html = ''
 
@@ -44,7 +44,7 @@ app.get('/save', async (c) => {
 	}
 
 	console.log(`Handling HTML for ${u}`)
-	const { title, content, byline } = await parseHtml(html)
+	const {title, content, byline, excerpt} = await parseHtml(html, u)
 	const opts = {
 		tags,
 		url: u,
@@ -63,7 +63,7 @@ app.get('/save', async (c) => {
 		)
 
 		const patch = diff.createTwoFilesPatch(
-			'Readability',
+			'Parsed',
 			'Unified',
 			fileContent,
 			unifiedFileContent,
@@ -74,7 +74,7 @@ app.get('/save', async (c) => {
 
 	const fileName = getFileName(title)
 
-	const redirectUrl = buildObsidianURL({ fileName, fileContent })
+	const redirectUrl = buildObsidianURL({fileName, fileContent})
 
 	if (raw) {
 		console.log(`Return raw Markdown for ${u}`)
@@ -88,12 +88,14 @@ app.get('/save', async (c) => {
 	console.log(`URL size: ${urlSize} bytes`)
 
 	if (urlSize > 20000) {
-		return c.html(`<p>Article is too big, can't automatically add it to your vault. Click this link instead<br /><a href="${redirectUrl}">Add to vault</a></p>`)
+		return c.html(
+			`<p>Article is too big, can't automatically add it to your vault. Click this link instead<br /><a href="${redirectUrl}">Add to vault</a></p>`,
+		)
 	}
 
 	console.log(`Handling request for ${u}`)
 	if (isUIRequest) {
-		return c.json({ type: 'obsidian_url', url: redirectUrl })
+		return c.json({type: 'obsidian_url', url: redirectUrl})
 	} else {
 		return c.redirect(redirectUrl)
 	}

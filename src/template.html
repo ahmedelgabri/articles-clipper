@@ -1,186 +1,206 @@
 <!doctype html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Article Clipper</title>
-	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/diff.min.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
-	<script>
-		tailwind.config = {
-			darkMode: 'media',
-		}
-	</script>
-	<style>
-		.hljs { @apply text-gray-800 dark:text-gray-200; }
-		pre { @apply whitespace-pre-wrap break-words; }
-	</style>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-	<div id="app" class="container mx-auto px-4 py-8 max-w-2xl">
-		<h1 class="text-3xl font-bold mb-8 text-center">Article Clipper</h1>
-		<form @submit.prevent="submitForm" class="space-y-4">
-			<div>
-				<label for="urlInput" class="block text-sm font-medium mb-1">URL or Selected Text</label>
-				<input
-					type="text"
-					id="urlInput"
-					v-model="url"
-					:placeholder="selectedParams.s ? 'Enter selected text' : 'Enter URL'"
-					required
-					class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800"
-				>
-			</div>
-			<div class="space-y-2">
-				<div v-for="param in queryParams" :key="param.id" class="flex items-center space-x-2">
-					<input
-						type="checkbox"
-						:id="param.id"
-						v-model="selectedParams[param.id]"
-						class="rounded text-blue-500 focus:ring-blue-500"
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Article Clipper</title>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js">
+</script>
+		<script src="https://cdn.tailwindcss.com">
+</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js">
+</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/diff.min.js">
+</script>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
+		/>
+		<script>
+			tailwind.config = {
+				darkMode: 'media',
+			}
+		</script>
+		<style>
+			.hljs {
+				@apply text-gray-800 dark:text-gray-200;
+			}
+			pre {
+				@apply whitespace-pre-wrap break-words;
+			}
+		</style>
+	</head>
+	<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+		<div id="app" class="container mx-auto px-4 py-8 max-w-2xl">
+			<h1 class="text-3xl font-bold mb-8 text-center">Article Clipper</h1>
+			<form @submit.prevent="submitForm" class="space-y-4">
+				<div>
+					<label for="urlInput" class="block text-sm font-medium mb-1"
+						>URL or Selected Text</label
 					>
-					<label :for="param.id" class="text-sm">{{ param.label }}</label>
 					<input
-						v-if="param.id === 't' && selectedParams.t"
 						type="text"
-						v-model="tags"
-						placeholder="Enter tags, comma-separated"
-						class="flex-grow px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800"
+						id="urlInput"
+						v-model="url"
+						:placeholder="selectedParams.s ? 'Enter selected text' : 'Enter URL'"
+						required
+						class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800"
+					/>
+				</div>
+				<div class="space-y-2">
+					<div
+						v-for="param in queryParams"
+						:key="param.id"
+						class="flex items-center space-x-2"
 					>
+						<input
+							type="checkbox"
+							:id="param.id"
+							v-model="selectedParams[param.id]"
+							class="rounded text-blue-500 focus:ring-blue-500"
+						/>
+						<label :for="param.id" class="text-sm">{{ param.label }}</label>
+						<input
+							v-if="param.id === 't' && selectedParams.t"
+							type="text"
+							v-model="tags"
+							placeholder="Enter tags, comma-separated"
+							class="flex-grow px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800"
+						/>
+					</div>
+				</div>
+				<button
+					type="submit"
+					class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+				>
+					Clip Article
+				</button>
+			</form>
+			<div
+				v-if="resultType"
+				class="mt-8 bg-white dark:bg-gray-800 p-4 rounded-md shadow"
+			>
+				<div v-if="resultType === 'redirect'" class="text-center">
+					<p class="mb-4">Article clipped successfully!</p>
+					<a
+						:href="redirectUrl"
+						class="inline-block bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+					>
+						Open in Obsidian
+					</a>
+				</div>
+				<div v-else-if="resultType === 'large'" class="text-center">
+					<p class="mb-4">
+						Article is too big to automatically add to your vault. Click this
+						link instead:
+					</p>
+					<a
+						:href="redirectUrl"
+						class="inline-block bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+					>
+						Add to vault
+					</a>
+				</div>
+				<div
+					v-else-if="resultType === 'raw' || resultType === 'diff'"
+					class="overflow-x-auto"
+				>
+					<pre
+						class="whitespace-pre-wrap break-words"
+					><code v-html="highlightedOutput"></code></pre>
+				</div>
+				<div v-else-if="resultType === 'error'" class="text-red-500">
+					<p>{{ output }}</p>
 				</div>
 			</div>
-			<button
-				type="submit"
-				class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-			>
-				Clip Article
-			</button>
-		</form>
-		<div
-			v-if="resultType"
-			class="mt-8 bg-white dark:bg-gray-800 p-4 rounded-md shadow"
-		>
-			<div v-if="resultType === 'redirect'" class="text-center">
-				<p class="mb-4">Article clipped successfully!</p>
-				<a
-					:href="redirectUrl"
-					class="inline-block bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-				>
-					Open in Obsidian
-				</a>
-			</div>
-			<div v-else-if="resultType === 'large'" class="text-center">
-				<p class="mb-4">
-					Article is too big to automatically add to your vault. Click this
-					link instead:
-				</p>
-				<a
-					:href="redirectUrl"
-					class="inline-block bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-				>
-					Add to vault
-				</a>
-			</div>
-			<div
-				v-else-if="resultType === 'raw' || resultType === 'diff'"
-				class="overflow-x-auto"
-			>
-				<pre
-					class="whitespace-pre-wrap break-words"
-				><code v-html="highlightedOutput"></code></pre>
-			</div>
-			<div v-else-if="resultType === 'error'" class="text-red-500">
-				<p>{{ output }}</p>
-			</div>
 		</div>
-	</div>
 
-	<script>
-		const {createApp, ref, reactive, computed} = Vue
+		<script>
+			const {createApp, ref, reactive, computed} = Vue
 
-		createApp({
-			setup() {
-				const url = ref('')
-				const output = ref('')
-				const redirectUrl = ref('')
-				const resultType = ref('')
-				const queryParams = [
-					{id: 's', label: 'Use selected text', type: 'checkbox'},
-					{id: 't', label: 'Tags (comma-separated)', type: 'text'},
-					{id: 'raw', label: 'Raw markdown', type: 'checkbox'},
-					{id: 'd', label: 'Show diff', type: 'checkbox'},
-				]
-				const selectedParams = reactive({})
-				const tags = ref('')
+			createApp({
+				setup() {
+					const url = ref('')
+					const output = ref('')
+					const redirectUrl = ref('')
+					const resultType = ref('')
+					const queryParams = [
+						{id: 's', label: 'Use selected text', type: 'checkbox'},
+						{id: 't', label: 'Tags (comma-separated)', type: 'text'},
+						{id: 'raw', label: 'Raw markdown', type: 'checkbox'},
+						{id: 'd', label: 'Show diff', type: 'checkbox'},
+					]
+					const selectedParams = reactive({})
+					const tags = ref('')
 
-				const highlightedOutput = computed(() => {
-					if (!output.value) return ''
-					const language = selectedParams.d ? 'diff' : 'markdown'
-					return hljs.highlight(output.value, { language }).value
-				})
+					const highlightedOutput = computed(() => {
+						if (!output.value) return ''
+						const language = selectedParams.d ? 'diff' : 'markdown'
+						return hljs.highlight(output.value, {language}).value
+					})
 
-				const submitForm = async () => {
-					const params = Object.entries(selectedParams)
-						.map(([key, value]) => {
-							if (typeof value === 'boolean' && value) {
-								return `${key}=true`
-							} else if (typeof value === 'string' && value) {
-								return `${key}=${encodeURIComponent(value)}`
+					const submitForm = async () => {
+						const params = Object.entries(selectedParams)
+							.map(([key, value]) => {
+								if (typeof value === 'boolean' && value) {
+									return `${key}=true`
+								} else if (typeof value === 'string' && value) {
+									return `${key}=${encodeURIComponent(value)}`
+								}
+								return ''
+							})
+							.filter(Boolean)
+
+						const queryString = params.join('&')
+						const fullUrl = `/save?u=${encodeURIComponent(url.value)}${queryString ? '&' + queryString : ''}`
+
+						try {
+							const response = await fetch(fullUrl, {
+								headers: {
+									'X-Requested-From': 'UI',
+								},
+							})
+							const contentType = response.headers.get('content-type')
+
+							if (contentType && contentType.includes('application/json')) {
+								const result = await response.json()
+								if (result.type === 'obsidian_url') {
+									redirectUrl.value = result.url
+									resultType.value = 'redirect'
+								}
+							} else {
+								const result = await response.text()
+								if (result.includes('Article is too big')) {
+									redirectUrl.value = result.match(/href="(.+?)"/)[1]
+									resultType.value = 'large'
+								} else if (selectedParams.raw || selectedParams.d) {
+									output.value = result
+									resultType.value = selectedParams.d ? 'diff' : 'raw'
+								}
 							}
-							return ''
-						})
-						.filter(Boolean)
-
-					const queryString = params.join('&')
-					const fullUrl = `/save?u=${encodeURIComponent(url.value)}${queryString ? '&' + queryString : ''}`
-
-					try {
-						const response = await fetch(fullUrl, {
-							headers: {
-								'X-Requested-From': 'UI'
-							}
-						})
-						const contentType = response.headers.get("content-type")
-						
-						if (contentType && contentType.includes("application/json")) {
-							const result = await response.json()
-							if (result.type === 'obsidian_url') {
-								redirectUrl.value = result.url
-								resultType.value = 'redirect'
-							}
-						} else {
-							const result = await response.text()
-							if (result.includes('Article is too big')) {
-								redirectUrl.value = result.match(/href="(.+?)"/)[1]
-								resultType.value = 'large'
-							} else if (selectedParams.raw || selectedParams.d) {
-								output.value = result
-								resultType.value = selectedParams.d ? 'diff' : 'raw'
-							}
+						} catch (error) {
+							output.value = `Error: ${error.message}`
+							resultType.value = 'error'
 						}
-					} catch (error) {
-						output.value = `Error: ${error.message}`
-						resultType.value = 'error'
 					}
-				}
 
-				return {
-					url,
-					output,
-					redirectUrl,
-					resultType,
-					queryParams,
-					selectedParams,
-					submitForm,
-					highlightedOutput,
-					tags,
-				}
-			},
-		}).mount('#app')
-	</script>
-</body>
+					return {
+						url,
+						output,
+						redirectUrl,
+						resultType,
+						queryParams,
+						selectedParams,
+						submitForm,
+						highlightedOutput,
+						tags,
+					}
+				},
+			}).mount('#app')
+		</script>
+	</body>
 </html>
