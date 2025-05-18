@@ -1,3 +1,12 @@
+> [!NOTE]
+>
+> Use [Obsidian Web Clipper](https://obsidian.md/clipper) instead
+
+
+---
+
+
+
 # Articles clipper
 
 A small Cloudflare worker service, to save articles as Markdown or save them
